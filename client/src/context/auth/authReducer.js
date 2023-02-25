@@ -17,7 +17,6 @@ const authReducer = (state, action) => {
         ...state,
         isAuthenticated: true,
         loading: false,
-        isAdmin: action.payload.isAdmin,
         student: action.payload,
       };
 
@@ -27,9 +26,9 @@ const authReducer = (state, action) => {
         ...state,
         ...action.payload,
         isAuthenticated: true,
-        isAdmin: action.payload.isAdmin,
         loading: false
       };
+
     case SET_IS_ADMIN:
       return {
         ...state,

@@ -3,15 +3,12 @@ import { Navigate } from 'react-router-dom';
 import AlertContext from '../../context/alert/alertContext';
 import { useAuth, clearErrors, login } from '../../context/auth/AuthState';
 
-import QuestionForm from '../pages/QuestionForm';
-
 const Login = () => {
   const alertContext = useContext(AlertContext);
   const { setAlert } = alertContext;
 
-  const [authState, authDispatch] = useAuth({ isAuthenticated: false, loading: false, isAdmin: false });
-  const { error, isAuthenticated, isAdmin } = authState;
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [authState, authDispatch] = useAuth({ isAuthenticated: false, loading: false });
+  const { error, isAuthenticated } = authState;
 
   useEffect(() => {
     if (error === 'Invalid Credentials') {
@@ -19,14 +16,7 @@ const Login = () => {
       clearErrors(authDispatch);
     }
 
-    // Update the loggedIn state when the user is authenticated and is an admin
-    if (isAuthenticated && isAdmin) {
-      console.log("I am here");
-      setLoggedIn(true);
-    } else {
-      setLoggedIn(false);
-    }
-  }, [error, isAuthenticated, isAdmin, authDispatch, setAlert]);
+  }, [error, authDispatch, setAlert]);
 
   const [student, setStudent] = useState({
     email: '',
@@ -49,9 +39,7 @@ const Login = () => {
     }
   };
 
-  if (loggedIn) { // Use the loggedIn state instead of isAdmin and isAuthenticated
-    return <QuestionForm isAdmin={isAdmin} />;
-  } else if (isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to='/' />;
   };
 
@@ -89,7 +77,6 @@ const Login = () => {
           className='btn btn-primary btn-block'
         />
       </form>
-
     </div>
   );
 };

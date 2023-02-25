@@ -23,8 +23,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    isAdmin = false;
     const { name, email, password } = req.body;
 
     try {

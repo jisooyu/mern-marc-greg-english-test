@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const chapterSchema = Schema({
-    title: {
-        type: String,
+    chapterId: {
+        type: ObjectId,
         required: true
     },
     numQuestions: {

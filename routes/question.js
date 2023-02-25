@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const requireAdmin = require('../middleware/requireAdmin');
 const { check, validationResult } = require('express-validator');
 
 const Question = require('../models/Question');
@@ -20,38 +19,34 @@ router.get('/', auth, async (req, res) => {
 });
 
 // route: POST 
-router.post('/', auth, requireAdmin,
-    [check('chapterId', 'Chapter ID is required').not().isEmpty(),
-    check('quiz', 'question is required').not().isEmpty(),
+router.post('/',
+    [check('quiz', 'question is required').not().isEmpty(),
     check('correctAnswer', 'Answer is required').not().isEmpty()],
     async (req, res) => {
-        if (!req.student.isAdmin) {
-            return res.status(403).json({ message: 'Please get the permission to access this resource.' });
-        }
+        console.log("req.body from router.post ", req.body);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
-        const { chapterId, quiz, correctAnswer } = req.body;
-
+        const { quiz, correctAnswer } = req.body;
         try {
             const newQuestion = new Question({
-                chapterId,
                 quiz,
                 correctAnswer,
-                student: req.student.id
             });
+            // const question = await newQuestion.save();
+            // question.chapterTitle.push(chapterTitle);
+            // question.quiz.push(quiz);
+            // question.correctAnswer.push(correctAnswer);
+            // res.json(question)
             const question = await newQuestion.save();
-            newQuestion.chapterId.push(newQuestion.chapterId)
-            newQuestion.quiz.push(newQuestion.quiz)
-            newQuestion.correctAnswer.push(newQuestion.correctAnswer)
             res.json(question)
         } catch (error) {
-            console.error(error.message);
-            res.status(500).send('Server Error');
+            console.log(error.message);
+            res.status(500).json({ error: "Server Error from question.js" })
         }
     }
 );
+
 
 module.exports = router;

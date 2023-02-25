@@ -9,7 +9,6 @@ import {
   STUDENT_LOADED,
   AUTH_ERROR,
   LOGIN_SUCCESS,
-  SET_IS_ADMIN,
   LOGIN_FAIL,
   LOGOUT,
   CLEAR_ERRORS,
@@ -30,14 +29,11 @@ export const useAuth = () => {
 export const loadStudent = async (dispatch) => {
   try {
     const res = await axios.get('/api/auth');
-
-    console.log("from loadStudent res", res);
-
+    // console.log("from loadStudent res", res);
     dispatch({
       type: STUDENT_LOADED,
       payload: res.data
-    });
-
+    })
   } catch (err) {
     dispatch({ type: AUTH_ERROR });
   }
@@ -60,23 +56,18 @@ export const register = async (dispatch, formData) => {
     });
   }
 };
+
 // Login Student
 export const login = async (dispatch, formData) => {
   try {
     //다음에서 에러 발생 추정.... 
     const res = await axios.post('/api/auth', formData); // res.json({token}) returned from auth.js
+    console.log("res from login in AuthState", res);
     dispatch({
       type: LOGIN_SUCCESS,
       payload: res.data  // res.data has only token
     });
-    // set isAdmin value
-    const isAdminRes = await axios.get('api/isAdmin');
-    console.log("isAdminRes from AuthState", isAdminRes);
-    dispatch({
-      type: SET_IS_ADMIN,
-      payload: isAdminRes.data
-    })
-    loadStudent(dispatch);
+
   } catch (err) {
     dispatch({
       type: LOGIN_FAIL,
@@ -98,7 +89,6 @@ const AuthState = (props) => {
   const initialState = {
     token: localStorage.getItem('token'),
     isAuthenticated: null,
-    isAdmin: null,
     loading: true,
     student: null,
     error: null
@@ -108,12 +98,10 @@ const AuthState = (props) => {
 
   // set token on initial app loading
   setAuthToken(state.token);
-
   // load user on first run or refresh
   if (state.loading) {
     loadStudent(dispatch);
   }
-
   // 'watch' state.token and set headers and local storage on any change
   useEffect(() => {
     setAuthToken(state.token);
