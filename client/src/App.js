@@ -3,8 +3,11 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
+import Display from './components/pages/Display';
 import AddQuestions from './components/pages/AddQuestions';
 import QuestionForm from './components/pages/QuestionForm';
+import NewQuestionForm from './components/pages/NewQuestionForm';
+import NewChapterForm from './components/pages/NewChapterForm';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Alerts from './components/layout/Alerts';
@@ -29,6 +32,9 @@ const App = () => {
                 <Route path='login' element={<Login />} />
                 <Route path='add_question' element={<AddQuestions />} />
                 <Route path='question' element={<QuestionForm />} />
+                <Route path='newQuestion' element={<NewQuestionForm />} />
+                <Route path='newChapter' element={<NewChapterForm />} />
+                <Route path='display' element={<Display />} />
               </Routes>
             </div>
           </Fragment>

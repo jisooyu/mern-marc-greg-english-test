@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-const QuestionForm = () => {
-
+const NewQuestionForm = () => {
     const [documentId, setDocumentId] = useState('');
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
@@ -13,7 +12,6 @@ const QuestionForm = () => {
     const handleDocumentChange = (event) => {
         setDocumentId(event.target.value);
     };
-
     const handleChapterChange = (event) => {
         setChapterTitle(event.target.value);
     };
@@ -29,7 +27,7 @@ const QuestionForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('/api/question', {
+            const response = await axios.post('/api/newChapter', {
                 documentId: documentId,
                 chapterTitle: chapterTitle,
                 quiz: quiz,
@@ -39,13 +37,13 @@ const QuestionForm = () => {
                 setPostData(true);
             }
         } catch (error) {
-            console.log(error.message);
+            console.log("Oops! Error: ", error.message);
         }
     };
 
     // 데이터 저장에 성공하면 display로 이동
     if (postData) {
-        return <Navigate to='/display' />;
+        return <Navigate to='/' />;
     }
 
     return (
@@ -71,4 +69,4 @@ const QuestionForm = () => {
     );
 }
 
-export default QuestionForm;
+export default NewQuestionForm;
