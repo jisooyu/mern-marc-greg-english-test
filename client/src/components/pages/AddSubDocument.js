@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-const NewQuestionForm = () => {
+const AddSubDocument = () => {
     const [documentId, setDocumentId] = useState('');
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
@@ -27,7 +27,7 @@ const NewQuestionForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('/api/newChapter', {
+            const response = await axios.post('/api/addSubDocument', {
                 documentId: documentId,
                 chapterTitle: chapterTitle,
                 quiz: quiz,
@@ -69,4 +69,4 @@ const NewQuestionForm = () => {
     );
 }
 
-export default NewQuestionForm;
+export default AddSubDocument;

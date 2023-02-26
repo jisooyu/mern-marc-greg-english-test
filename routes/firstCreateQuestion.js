@@ -15,15 +15,15 @@ router.post('/',
         }
         const { chapterTitle, quiz, correctAnswer } = req.body;
         try {
-            const question1 = { quiz, correctAnswer };
-            const chapter1 = {
+            const question = { quiz, correctAnswer };
+            const chapter = {
                 chapterTitle: chapterTitle,
-                quizzes: [question1]
+                quizzes: [question]
             };
             const questionModel = new Question({
-                keys: [chapter1]
+                keys: [chapter]
             });
-            questionModel.save(function (err, result) {
+            await questionModel.save(function (err, result) {
                 if (err) {
                     console.log("failed to save the new question data: ", err);
                 } else {

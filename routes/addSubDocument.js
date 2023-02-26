@@ -16,24 +16,27 @@ router.post('/',
         }
         const { documentId, chapterTitle, quiz, correctAnswer } = req.body;
         try {
-            question1 = {
+            question = {
                 quiz: quiz,
                 correctAnswer: correctAnswer
             }
             key = {
                 chapterTitle: chapterTitle,
-                quizzes: [question1]
+                quizzes: [question]
             }
-            Question.findById(documentId, function (err, question) {
-                question.keys.push(key);
-                question.save(function (err, result) {
-                    if (err) {
-                        console.log("unable to add new object to keys");
-                    } else {
-                        console.log(result);
-                    }
-                })
-            })
+            // await Question.findById(documentId, function (err, question) {
+            //     question.keys.push(key);
+            //     question.save(function (err, result) {
+            //         if (err) {
+            //             console.log("unable to add new object to keys");
+            //         } else {
+            //             console.log(result);
+            //         }
+            //     })
+            // })
+            const modelQuestion = await Question.findById(documentId);
+            modelQuestion.keys.push(key);
+            await question.save();
         } catch (error) {
             console.log(error.message);
             res.status(500).json({ error: "Server Error from question.js" })

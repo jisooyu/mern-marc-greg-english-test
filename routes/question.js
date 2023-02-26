@@ -35,12 +35,6 @@ router.post('/',
             const question = await Question.findById(documentId);
             const keyIndex = question.keys.findIndex(key => key.chapterTitle === chapterTitle);
             question.keys[keyIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
-            // const question1 = { quiz, correctAnswer };
-            // const chapter1 = {
-            //     chapterTitle: chapterTitle,
-            //     quizzes: [question1]
-            // };
-            // question.keys[chapter1].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
             await question.save();
             res.json(question)
         } catch (error) {

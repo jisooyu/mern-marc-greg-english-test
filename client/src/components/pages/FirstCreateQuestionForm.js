@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-const NewQuestionForm = () => {
+const FirstCreateQuestionForm = () => {
 
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
@@ -24,7 +24,7 @@ const NewQuestionForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('/api/newQuestion', {
+            const response = await axios.post('/api/firstCreateQuestion', {
                 chapterTitle: chapterTitle,
                 quiz: quiz,
                 correctAnswer: answer,
@@ -61,4 +61,4 @@ const NewQuestionForm = () => {
     );
 }
 
-export default NewQuestionForm;
+export default FirstCreateQuestionForm;
