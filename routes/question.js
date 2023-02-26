@@ -20,7 +20,8 @@ router.get('/', auth, async (req, res) => {
 
 // route: POST 
 router.post('/',
-    [check('quiz', 'question is required').not().isEmpty(),
+    [check('chapterTitle', 'chapter title is required').not().isEmpty(),
+    check('quiz', 'question is required').not().isEmpty(),
     check('correctAnswer', 'Answer is required').not().isEmpty()],
     async (req, res) => {
         console.log("req.body from router.post ", req.body);
@@ -28,18 +29,12 @@ router.post('/',
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { quiz, correctAnswer } = req.body;
+        const { chapterTitle, quiz, correctAnswer } = req.body;
         try {
-            const newQuestion = new Question({
-                quiz,
-                correctAnswer,
-            });
-            // const question = await newQuestion.save();
-            // question.chapterTitle.push(chapterTitle);
-            // question.quiz.push(quiz);
-            // question.correctAnswer.push(correctAnswer);
-            // res.json(question)
-            const question = await newQuestion.save();
+            const question = await Question.findById('63faa5518ee5fb0eecf0a167');
+            const keyIndex = question.keys.findIndex(key => key.chapterTitle === chapterTitle);
+            question.keys[keyIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
+            await question.save();
             res.json(question)
         } catch (error) {
             console.log(error.message);
@@ -47,6 +42,28 @@ router.post('/',
         }
     }
 );
+
+// router.post('/',
+//     async (req, res) => {
+//         const { chapterTitle, quiz, correctAnswer } = req.body;
+//         const question1 = { quiz, correctAnswer };
+//         const chapter1 = {
+//             chapterTitle: chapterTitle,
+//             quizzes: [question1]
+//         };
+//         const questionModel = new Question({
+//             keys: [chapter1]
+//         });
+//         questionModel.save(function (err, result) {
+//             if (err) {
+//                 console.log(err);
+//             } else {
+//                 console.log(result);
+//             }
+//             mongoose.connection.close();
+//         });
+//     }
+// )
 
 
 module.exports = router;

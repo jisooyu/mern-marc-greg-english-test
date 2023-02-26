@@ -17,7 +17,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/isAdmin', require('./routes/isAdmin'));
 app.use('/api/question', require('./routes/question'));
 
-
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
