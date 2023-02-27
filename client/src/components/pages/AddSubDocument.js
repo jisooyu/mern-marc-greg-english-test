@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const AddSubDocument = () => {
     const [documentId, setDocumentId] = useState('');
+    const [objectId, setObjectId] = useState('');
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
     const [answer, setAnswer] = useState('');
@@ -12,6 +13,11 @@ const AddSubDocument = () => {
     const handleDocumentChange = (event) => {
         setDocumentId(event.target.value);
     };
+
+    const handleObjectChange = (event) => {
+        setObjectId(event.target.value);
+    };
+
     const handleChapterChange = (event) => {
         setChapterTitle(event.target.value);
     };
@@ -29,6 +35,7 @@ const AddSubDocument = () => {
         try {
             const response = await axios.post('/api/addSubDocument', {
                 documentId: documentId,
+                objectId: objectId,
                 chapterTitle: chapterTitle,
                 quiz: quiz,
                 correctAnswer: answer,
@@ -51,6 +58,10 @@ const AddSubDocument = () => {
             <div>
                 <label>Document Id:</label>
                 <input type="text" value={documentId} onChange={handleDocumentChange} />
+            </div>
+            <div>
+                <label>Object Id:</label>
+                <input type="text" value={objectId} onChange={handleObjectChange} />
             </div>
             <div>
                 <label>Chapter Title:</label>

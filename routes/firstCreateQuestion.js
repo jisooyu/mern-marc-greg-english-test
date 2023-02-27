@@ -15,10 +15,10 @@ router.post('/',
         }
         const { chapterTitle, quiz, correctAnswer } = req.body;
         try {
-            const question = { quiz, correctAnswer };
+            const quizzes = { quiz, correctAnswer };
             const chapter = {
-                chapterTitle: chapterTitle,
-                quizzes: [question]
+                chapterTitle: [chapterTitle],
+                quizzes: [quizzes]
             };
             const questionModel = new Question({
                 keys: [chapter]
