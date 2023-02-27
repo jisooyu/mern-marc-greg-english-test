@@ -31,12 +31,19 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
         const { documentId, chapterTitle, quiz, correctAnswer } = req.body;
+        const quizz = { quiz, correctAnswer };
+
         try {
-            const question = await Question.findById(documentId);
-            const keyIndex = question.keys.findIndex(key => key.chapterTitle === chapterTitle);
-            question.keys[keyIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
-            await question.save();
-            res.json(question)
+            const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
+            // update the document to add the new quiz to the chapter with the specified chapterTitle
+            if (question) {
+                const chapterIndex = await question.keys[0].chapterTitle.findIndex(chapter => chapter.title === chapterTitle);
+
+                if (chapterIndex > -1) {
+                    question.keys[chapterIndex].chapterTitle[0].quizzes.push(quizz);
+                    await question.save();
+                }
+            }
         } catch (error) {
             console.log(error.message);
             res.status(500).json({ error: "Server Error from question.js" })

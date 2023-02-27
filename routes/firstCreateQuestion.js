@@ -17,11 +17,11 @@ router.post('/',
         try {
             const quizzes = { quiz, correctAnswer };
             const chapter = {
-                chapterTitle: [chapterTitle],
+                title: chapterTitle,
                 quizzes: [quizzes]
             };
-            const questionModel = new Question({
-                keys: [chapter]
+            const questionModel = await new Question({
+                keys: [{ chapterTitle: [chapter] }]
             });
             await questionModel.save(function (err, result) {
                 if (err) {

@@ -6,8 +6,10 @@ const quizSchema = new mongoose.Schema({
 });
 
 const chapterSchema = new mongoose.Schema({
-    chapterTitle: [String], // chapter title
-    quizzes: [quizSchema]
+    chapterTitle: [{
+        title: String,
+        quizzes: [quizSchema]
+    }]
 });
 
 const questionModelSchema = new mongoose.Schema({
