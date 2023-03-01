@@ -31,19 +31,29 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
         const { documentId, chapterTitle, quiz, correctAnswer } = req.body;
-        const quizz = { quiz, correctAnswer };
-
+        const chapterNum = chapterTitle.charAt(8); // extract chapter number(eg. pss-1-1-1) from chapterTitle
+        console.log("chapterNum", chapterNum);
+        let chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
+        console.log("chapterIndex", chapterIndex);
         try {
             const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
             // update the document to add the new quiz to the chapter with the specified chapterTitle
             if (question) {
-                const chapterIndex = await question.keys[0].chapterTitle.findIndex(chapter => chapter.title === chapterTitle);
-
                 if (chapterIndex > -1) {
-                    question.keys[chapterIndex].chapterTitle[0].quizzes.push(quizz);
+                    question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
                     await question.save();
+                } else {
+                    res.status(400).json({ error: "Invalid chapter number" });
                 }
+            } else {
+                const newChapter = await Question.findById(documentId);
+                // console.log("newChapter", newChapter);
+                newChapter.keys[0].chapterTitle.push({ title: chapterTitle });
+                // console.log("chapterIndex", chapterIndex);
+                newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
+                await newChapter.save();
             }
+            res.status(200).json({ message: "Quizzes saved successfully" })
         } catch (error) {
             console.log(error.message);
             res.status(500).json({ error: "Server Error from question.js" })

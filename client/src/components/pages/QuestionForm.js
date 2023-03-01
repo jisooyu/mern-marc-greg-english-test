@@ -45,7 +45,7 @@ const QuestionForm = () => {
 
     // 데이터 저장에 성공하면 display로 이동
     if (postData) {
-        return <Navigate to='/display' />;
+        return <Navigate to='/' />;
     }
 
     return (
