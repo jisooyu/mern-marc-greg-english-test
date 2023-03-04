@@ -26,7 +26,7 @@ router.get('/', auth, async (req, res) => {
 router.post('/', multerUpload.single('imageFile'),
     [check('documentId', 'document ID is required').not().isEmpty(),
     check('chapterTitle', 'chapter title is required').not().isEmpty(),
-    check('imageFile', 'imageFile is required').not().isEmpty(),
+    // check('imageFile', 'imageFile is required').not().isEmpty(),
     check('quiz', 'quiz is required').not().isEmpty(),
     check('correctAnswer', 'Answer is required').not().isEmpty()],
     async (req, res) => {
@@ -36,36 +36,37 @@ router.post('/', multerUpload.single('imageFile'),
         }
         console.log("req.body from router.post ", req.body);
         const { documentId, chapterTitle, quiz, correctAnswer } = req.body;
-        if (req.file) {
-            const image = req.file;
-        } else {
-            console.log('req.file is not defined');
-        }
-
-        // upload imageFile to AWS S3
-        const result = await upload(image);
-        console.log("result form campController", result);
         const chapterNum = chapterTitle.charAt(8); // extract chapter number(eg. pss-1-1-1) from chapterTitle
-        console.log("chapterNum", chapterNum);
         let chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
-        console.log("chapterIndex", chapterIndex);
         try {
             const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
+            console.log("question from Question.findOne", question);
             // update the document to add the new quiz to the chapter with the specified chapterTitle
             if (question) {
                 if (chapterIndex > -1) {
                     question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
                     await question.save();
                 } else {
-                    res.status(400).json({ error: "Invalid chapter number" });
+                    res.status(400).json({ error: "Invalid chapter title" });
                 }
             } else {
                 const newChapter = await Question.findById(documentId);
-                // console.log("newChapter", newChapter);
                 newChapter.keys[0].chapterTitle.push({ title: chapterTitle });
-                newChapter.keys[0].s3ImageUrl.push({ s3ImageUrl: result.Location })
-                // console.log("chapterIndex", chapterIndex);
+                console.log("newChapter.keys[0].chapterTitle", newChapter.keys[0].chapterTitle);
+                // console.log("newChapter.keys[0].chapterTitle[chapterIndex]", newChapter.keys[0].chapterTitle[chapterIndex]);
+                // upload imageFile to AWS S3
+                if (typeof req.file != 'undefined') {
+                    const image = req.file;
+                    const result = await upload(image);
+                    if (result) {
+                        newChapter.keys[0].chapterTitle[chapterIndex].push({ s3ImageUrl: result.Location });
+                    }
+                } else {
+                    console.log("No image to upload")
+                }
+                // console.log("newChapter.keys[0].chapterTitle[chapterIndex]", newChapter.keys[0].chapterTitle[chapterIndex]);
                 newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
+                console.log("newChapter", newChapter.keys[0].chapterTitle[chapterIndex]);
                 await newChapter.save();
             }
             res.status(200).json({ message: "Quizzes saved successfully" })
