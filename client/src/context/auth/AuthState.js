@@ -60,7 +60,6 @@ export const register = async (dispatch, formData) => {
 // Login Student
 export const login = async (dispatch, formData) => {
   try {
-    //다음에서 에러 발생 추정.... 
     const res = await axios.post('/api/auth', formData); // res.json({token}) returned from auth.js
     console.log("res from login in AuthState", res);
     dispatch({

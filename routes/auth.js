@@ -29,6 +29,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
+    console.log("email password", email, password);
     try {
       let student = await Student.findOne({ email });
       if (!student) {
