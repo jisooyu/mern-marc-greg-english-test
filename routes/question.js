@@ -45,6 +45,8 @@ router.post('/', multerUpload.single('imageFile'),
             if (question) {
                 if (chapterIndex > -1) {
                     question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
+                    // question.keys[0].chapterTitle[chapterIndex].quizzes.push(quiz);
+                    // question.keys[0].chapterTitle[chapterIndex].quizzes.correctAnswer.push(correctAnswer);
                     await question.save();
                 } else {
                     res.status(400).json({ error: "Invalid chapter title" });
@@ -52,21 +54,18 @@ router.post('/', multerUpload.single('imageFile'),
             } else {
                 const newChapter = await Question.findById(documentId);
                 newChapter.keys[0].chapterTitle.push({ title: chapterTitle });
-                console.log("newChapter.keys[0].chapterTitle", newChapter.keys[0].chapterTitle);
-                // console.log("newChapter.keys[0].chapterTitle[chapterIndex]", newChapter.keys[0].chapterTitle[chapterIndex]);
                 // upload imageFile to AWS S3
                 if (typeof req.file != 'undefined') {
                     const image = req.file;
                     const result = await upload(image);
                     if (result) {
-                        newChapter.keys[0].chapterTitle[chapterIndex].push({ s3ImageUrl: result.Location });
+                        // newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl.push(result.Location); // in case,  the s3ImageUrl is array
+                        newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl = result.Location;
                     }
                 } else {
                     console.log("No image to upload")
                 }
-                // console.log("newChapter.keys[0].chapterTitle[chapterIndex]", newChapter.keys[0].chapterTitle[chapterIndex]);
                 newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
-                console.log("newChapter", newChapter.keys[0].chapterTitle[chapterIndex]);
                 await newChapter.save();
             }
             res.status(200).json({ message: "Quizzes saved successfully" })
