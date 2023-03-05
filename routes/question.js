@@ -39,33 +39,38 @@ router.post('/', multerUpload.single('imageFile'),
         const chapterNum = chapterTitle.charAt(8); // extract chapter number(eg. pss-1-1-1) from chapterTitle
         let chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
         try {
+            // frontend 에서 입력한 chapterTitle이 이미 mongo db에 있는 찾아 봄
             const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
-            console.log("question from Question.findOne", question);
             // update the document to add the new quiz to the chapter with the specified chapterTitle
+            // 이미 chapterTitle.title (e.g. pss-1-1-1) 이 mongo db에 있는 경우
             if (question) {
                 if (chapterIndex > -1) {
-                    question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
-                    // question.keys[0].chapterTitle[chapterIndex].quizzes.push(quiz);
-                    // question.keys[0].chapterTitle[chapterIndex].quizzes.correctAnswer.push(correctAnswer);
+                    question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
                     await question.save();
                 } else {
                     res.status(400).json({ error: "Invalid chapter title" });
                 }
             } else {
+                // 아직 chapterTitle.title이 mongo db에 없는 경우
                 const newChapter = await Question.findById(documentId);
+                // mongo db에 새로운 chapterTitle.titlez을 저장
                 newChapter.keys[0].chapterTitle.push({ title: chapterTitle });
-                // upload imageFile to AWS S3
+                // frontend에서 이미지를 보냈다면
                 if (typeof req.file != 'undefined') {
                     const image = req.file;
+                    // upload imageFile to AWS S3
                     const result = await upload(image);
+                    // AWS S3에 저장한 이미지 url을 mongoose model에 push
                     if (result) {
                         // newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl.push(result.Location); // in case,  the s3ImageUrl is array
                         newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl = result.Location;
                     }
                 } else {
+                    // frontend에서 보낸 이미지가 없다면.. 
                     console.log("No image to upload")
                 }
-                newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz, correctAnswer });
+                // quiz와 correctAnswer를 mongoose model에 push
+                newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
                 await newChapter.save();
             }
             res.status(200).json({ message: "Quizzes saved successfully" })

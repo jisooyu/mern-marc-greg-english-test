@@ -8,13 +8,18 @@ const QuestionForm = () => {
     const [imageFile, setImageFile] = useState('');
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
-    const [correctAnswer, setAnswer] = useState('');
+    const [correctAnswer, setAnswers] = useState('');
     const [postData, setPostData] = useState(false);
 
     const handleImage = async (e) => {
         const file = e.target.files[0];
         setImageFile(file);
     };
+
+    const handleAnswer = (e) => {
+        const newAnswer = e.target.value;
+        setAnswers(newAnswer);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,8 +28,8 @@ const QuestionForm = () => {
         formData.append('documentId', documentId);
         formData.append('chapterTitle', chapterTitle);
         formData.append('quiz', quiz);
-        formData.append('correctAnswer', correctAnswer);
-        console.log("formData from handleSubmit", formData);
+        const answersArray = correctAnswer.split(',').map((answer) => answer.trim());
+        formData.append('correctAnswer', answersArray);
         const config = {
             headers: {
                 'content-type': `multipart/form-data; boundary=${formData._boundary}`
@@ -75,7 +80,7 @@ const QuestionForm = () => {
             <div>
                 <label>Answer:</label>
                 <input type="text" value={correctAnswer} name={correctAnswer}
-                    onChange={(e) => setAnswer(e.target.value)}
+                    onChange={handleAnswer}
                 />
             </div>
             <button type="submit">Add Question</button>

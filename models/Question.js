@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const quizSchema = new mongoose.Schema({
     quiz: String,
-    correctAnswer: String
+    correctAnswer: [String]
 });
 
 const chapterSchema = new mongoose.Schema({
