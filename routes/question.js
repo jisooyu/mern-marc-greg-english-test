@@ -36,41 +36,54 @@ router.post('/', multerUpload.single('imageFile'),
         }
         console.log("req.body from router.post ", req.body);
         const { documentId, chapterTitle, quiz, correctAnswer } = req.body;
-        const chapterNum = chapterTitle.charAt(8); // extract chapter number(eg. pss-1-1-1) from chapterTitle
-        let chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
+        const sectionNum = chapterTitle.charAt(4); // extract sectoin number (e.g. pss-1-4-5 ----> 1)
+        const lastDashIndex = chapterTitle.lastIndexOf("-");
+        console.log("lastDashIndex", lastDashIndex);
+        const chapterNum = chapterTitle.substring(lastDashIndex + 1); // extract chapter number(eg. pss-1-7-9 ---> 9) from chapterTitle
+        const sectionIndex = sectionNum - 1;
+        const chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
+        console.log("chapterIndex", chapterIndex);
         try {
-            // frontend 에서 입력한 chapterTitle이 이미 mongo db에 있는 찾아 봄
+            // frontend 에서 입력한 chapterTitle이 이미 mongo db에 있는지  찾아 봄
             const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
             // update the document to add the new quiz to the chapter with the specified chapterTitle
             // 이미 chapterTitle.title (e.g. pss-1-1-1) 이 mongo db에 있는 경우
             if (question) {
                 if (chapterIndex > -1) {
-                    question.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
+                    question.keys[sectionIndex].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
                     await question.save();
                 } else {
                     res.status(400).json({ error: "Invalid chapter title" });
                 }
             } else {
-                // 아직 chapterTitle.title이 mongo db에 없는 경우
+                // chapterTitle.title이 mongo db에 없는 경우
                 const newChapter = await Question.findById(documentId);
-                // mongo db에 새로운 chapterTitle.titlez을 저장
-                newChapter.keys[0].chapterTitle.push({ title: chapterTitle });
-                // frontend에서 이미지를 보냈다면
+                // mongo db에 새로운 chapterTitle.title을 저장
+                console.log("sectionIndex", sectionIndex);
+
+                // create a new object in keys[sectionIndex] array if keys[sectionIndex ] is undefined
+                if (!newChapter.keys[sectionIndex]) {
+                    newChapter.keys[sectionIndex] = {};
+                }
+                // newChapter에 chapterTitle push
+                newChapter.keys[sectionIndex].chapterTitle.splice(chapterIndex, 0, { title: chapterTitle });
+
+                // frontend에서 이미지를 보냈다면 upload it to AWS S3 and get the locaton of S#
                 if (typeof req.file != 'undefined') {
                     const image = req.file;
                     // upload imageFile to AWS S3
                     const result = await upload(image);
                     // AWS S3에 저장한 이미지 url을 mongoose model에 push
                     if (result) {
-                        // newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl.push(result.Location); // in case,  the s3ImageUrl is array
-                        newChapter.keys[0].chapterTitle[chapterIndex].s3ImageUrl = result.Location;
+                        // newChapter.keys[sectionIndex].chapterTitle[chapterIndex].s3ImageUrl.push(result.Location); // in case,  the s3ImageUrl is array
+                        newChapter.keys[sectionIndex].chapterTitle[chapterIndex].s3ImageUrl = result.Location;
                     }
                 } else {
                     // frontend에서 보낸 이미지가 없다면.. 
                     console.log("No image to upload")
                 }
                 // quiz와 correctAnswer를 mongoose model에 push
-                newChapter.keys[0].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
+                newChapter.keys[sectionIndex].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
                 await newChapter.save();
             }
             res.status(200).json({ message: "Quizzes saved successfully" })
