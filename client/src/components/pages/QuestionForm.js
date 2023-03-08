@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const QuestionForm = () => {
 
-    const [documentId, setDocumentId] = useState('');
     const [imageFile, setImageFile] = useState('');
     const [chapterTitle, setChapterTitle] = useState('');
     const [quiz, setQuiz] = useState('');
@@ -25,7 +24,6 @@ const QuestionForm = () => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('imageFile', imageFile);
-        formData.append('documentId', documentId);
         formData.append('chapterTitle', chapterTitle);
         formData.append('quiz', quiz);
         const answersArray = correctAnswer.split(',').map((answer) => answer.trim());
@@ -54,13 +52,8 @@ const QuestionForm = () => {
     return (
         <form onSubmit={handleSubmit}>
             <div>
-                <label>Document Id:</label>
-                <input type="text" value={documentId} name={documentId}
-                    onChange={(e) => setDocumentId(e.target.value)} />
-            </div>
-            <div>
                 <label>Chapter Title:</label>
-                <input type="text" value={chapterTitle} name={documentId}
+                <input type="text" value={chapterTitle} name={chapterTitle}
                     onChange={(e) => setChapterTitle(e.target.value)} />
             </div>
             <label htmlFor='imageFile'>Upload Images</label>
