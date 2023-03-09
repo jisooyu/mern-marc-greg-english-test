@@ -19,7 +19,6 @@ const authReducer = (state, action) => {
         loading: false,
         student: action.payload,
       };
-
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
       return {
@@ -28,7 +27,6 @@ const authReducer = (state, action) => {
         isAuthenticated: true,
         loading: false
       };
-
     case SET_IS_ADMIN:
       return {
         ...state,

@@ -5,8 +5,7 @@ import Home from './components/pages/Home';
 import About from './components/pages/About';
 import Display from './components/pages/Display';
 import QuestionForm from './components/pages/QuestionForm';
-import FirstCreateQuestionForm from './components/pages/FirstCreateQuestionForm';
-import AddSubDocument from './components/pages/AddSubDocument';
+import EditQuestionForm from './components/pages/EditQuestionForm';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Alerts from './components/layout/Alerts';
@@ -30,8 +29,7 @@ const App = () => {
                 <Route path='register' element={<Register />} />
                 <Route path='login' element={<Login />} />
                 <Route path='question' element={<QuestionForm />} />
-                <Route path='firstCreateQuestion' element={<FirstCreateQuestionForm />} />
-                <Route path='addSubDocument' element={<AddSubDocument />} />
+                <Route path='question/edit' element={<EditQuestionForm />} />
                 <Route path='display' element={<Display />} />
               </Routes>
             </div>

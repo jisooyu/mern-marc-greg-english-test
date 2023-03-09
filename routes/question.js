@@ -10,17 +10,87 @@ const Question = require('../models/Question');
 const multerUpload = multer({ dest: 'uploads/' });
 
 // route GET
-router.get('/', auth, async (req, res) => {
+// router.get('/', async (req, res) => {
+//     try {
+//         const questions = await Question.find({ chapter: req.query.chapter }).sort({
+//             date: -1
+//         });
+//         res.json(questions);
+//     } catch (error) {
+//         console.log(error.message);
+//         res.status(500).send('Server Error')
+//     }
+// });
+// router.get('/:title', async (req, res) => {
+//     try {
+//         const keysIndex = Number(req.query.keysIndex) || 0;
+//         const chapterIndex = Number(req.query.chapterIndex) || 0;
+//         console.log("keysIndex, chapterIndex", keysIndex, chapterIndex);
+//         console.log('req.params.title', req.params.title);
+//         const pipeline = [
+//             {
+//                 $match: {
+//                     'keys.chapterTitle.title': req.params.title
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     keys: {
+//                         $filter: {
+//                             input: '$keys',
+//                             cond: {
+//                                 $eq: [{ $indexOfArray: ['$$this.chapterTitle.title', req.params.title] }, chapterIndex]
+//                             }
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     keys: { $slice: ['$keys', keysIndex, 1] }
+//                 }
+//             }
+//         ];
+//         const questions = await Question.aggregate(pipeline);
+//         res.json(questions);
+//     } catch (error) {
+//         console.log(error.message);
+//         res.status(500).send('Server Error')
+//     }
+// });
+const getQuestion = async (title, keysIndex = 0, chapterIndex = 0) => {
     try {
-        const questions = await Question.find({ chapter: req.chapter.id }).sort({
-            date: -1
+        const query = { 'keys.chapterTitle.title': title };
+        const projection = { keys: 1 };
+        const questions = await Question.find(query, projection);
+        // console.log("questions", questions[0].keys[0].chapterTitle[0].title);
+        // console.log("title", title);
+        const filteredKeys = questions[0].keys[0].chapterTitle.filter((key, index) => {
+            // console.log("key.chapterTitle[chapterIndex].title", key.chapterTitle[chapterIndex].title)
+            // return index === keysIndex && key.chapterTitle[chapterIndex].title === title;
+            return key.title === title;
         });
+        return filteredKeys;
+    } catch (error) {
+        console.log(error.message);
+        throw new Error('Server Error');
+    }
+};
+
+router.get('/:title', async (req, res) => {
+    try {
+        const keysIndex = Number(req.query.keysIndex) || 0;
+        const chapterIndex = Number(req.query.chapterIndex) || 0;
+        console.log("keysIndex, chapterIndex", keysIndex, chapterIndex);
+        console.log('req.params.title', req.params.title);
+        const questions = await getQuestion(req.params.title, keysIndex, chapterIndex);
         res.json(questions);
     } catch (error) {
         console.log(error.message);
         res.status(500).send('Server Error')
     }
 });
+
 
 // route: POST 
 router.post('/', multerUpload.single('imageFile'),
@@ -40,7 +110,7 @@ router.post('/', multerUpload.single('imageFile'),
         /*
         DB Structure
         최상위: collection [documentIndex]
-        keys [array] -> chapterTitle [array] -> title 혹은 keys [array] -> chapterTitle [array] -> quizzes[]
+        keys [array] -> chapterTitle [array] -> title 혹은 keys [array] -> chapterTitle [array] -> keys[]
         keys [sectionIndex] -> chapterTitle[chapterIndex]
         sectionIndex --> pss-2-1-13에서 첫 번호 2-1=1로 결정
         chapterIndex --> pss-2-1-13 에서 끝 번호 3-1=2로 결정
@@ -111,7 +181,22 @@ router.post('/', multerUpload.single('imageFile'),
 router.put('/edit/:id', multerUpload.single('imageFile'),
     async (req, res) => {
         console.log("req.body from router.post ", req.body);
-        const { quizId } = req.params;
+        const { quizId } = req.params; // edit 하려고 하는 quiz의 id
+        /* 
+        collection [documentId] -> keys[sectionId] -> chapterTitle[chapterId]->quizzes[quizzId]
+        quizId가 React JS에서 오면 이를 갖고 quizzes[quizzId]를 찾아야 함.
+        어떻게 quizzes[quizzId]를 찾을 수 있지?
+        잠깐...
+        
+        1. React에서 edit 하고자 하는 quiz를 click하면 
+        quiz 의 id가 node js get으로 보내지고..
+        2. node js get은 id에 해당하는 quiz data를 react 로 보내고
+        3. react는 이 데이터를 React form에 display를 하면
+        4. 이를 수정하여 다시 node js의 put으로 보냄
+
+        해당 quiz의 내용이 EditQuestionForm.js에 나타나야 함. 그리고 이를 수정해서 submit하면 수정내용을 node js /edit/:id로 보내야 함.
+        
+        */
         const { chapterTitle, quiz, correctAnswer } = req.body;
         const sectionNum = chapterTitle.charAt(4); // extract sectoin number (e.g. pss-1-4-5 ----> 1, pss-2-1-11 -----> 2)
         const sectionIndex = sectionNum - 1;
@@ -127,19 +212,6 @@ router.put('/edit/:id', multerUpload.single('imageFile'),
         const chapterNum = chapterTitle.charAt(9);
         const chapterIndex = chapterNum - 1; // pss-1-1-1 will be stored in array chapterTitle[0]
         try {
-            // frontend 에서 입력한 chapterTitle이 이미 mongo db에 있는지  찾아 봄
-            const question = await Question.findOne({ 'keys.chapterTitle.title': chapterTitle });
-            // update the document to add the new quiz to the chapter with the specified chapterTitle
-            // 이미 chapterTitle.title (e.g. pss-1-1-1) 이 mongo db에 있는 경우
-            // if (question) {
-            //     if (chapterIndex > -1) {
-            //         question.keys[sectionIndex].chapterTitle[chapterIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
-            //         await question.save();
-            //     } else {
-            //         res.status(400).json({ error: "Invalid chapter title" });
-            //     }
-            // } else {
-            // chapterTitle.title이 mongo db에 없는 경우
             const newChapter = await Question.findById(documentId);
             // create a new object in keys[sectionIndex] array if keys[sectionIndex ] is undefined
             if (!newChapter.keys[sectionIndex]) {
@@ -148,9 +220,7 @@ router.put('/edit/:id', multerUpload.single('imageFile'),
             // newChapter에 chapterTitle push
             newChapter.keys[sectionIndex].chapterTitle.splice(chapterIndex, 0, { title: chapterTitle });
             const titleIndex = newChapter.keys[sectionIndex].chapterTitle.findIndex((element) => element.title === chapterTitle);
-            console.log("titleIndex", titleIndex);
-
-            // frontend에서 이미지를 보냈다면 upload it to AWS S3 and get the locaton of S#
+            // frontend에서 이미지를 보냈다면 upload it to AWS S3 and get the locaton of S3
             if (typeof req.file != 'undefined') {
                 const image = req.file;
                 // upload imageFile to AWS S3
@@ -167,7 +237,6 @@ router.put('/edit/:id', multerUpload.single('imageFile'),
             // quiz와 correctAnswer를 mongoose model에 push
             newChapter.keys[sectionIndex].chapterTitle[titleIndex].quizzes.push({ quiz: quiz, correctAnswer: correctAnswer });
             await newChapter.save();
-            // }
             res.status(200).json({ message: "Quizzes saved successfully" })
         } catch (error) {
             console.log(error.message);
