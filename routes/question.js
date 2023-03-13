@@ -9,65 +9,13 @@ const Question = require('../models/Question');
 // multer middleware
 const multerUpload = multer({ dest: 'uploads/' });
 
-// route GET
-// router.get('/', async (req, res) => {
-//     try {
-//         const questions = await Question.find({ chapter: req.query.chapter }).sort({
-//             date: -1
-//         });
-//         res.json(questions);
-//     } catch (error) {
-//         console.log(error.message);
-//         res.status(500).send('Server Error')
-//     }
-// });
-// router.get('/:title', async (req, res) => {
-//     try {
-//         const keysIndex = Number(req.query.keysIndex) || 0;
-//         const chapterIndex = Number(req.query.chapterIndex) || 0;
-//         console.log("keysIndex, chapterIndex", keysIndex, chapterIndex);
-//         console.log('req.params.title', req.params.title);
-//         const pipeline = [
-//             {
-//                 $match: {
-//                     'keys.chapterTitle.title': req.params.title
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     keys: {
-//                         $filter: {
-//                             input: '$keys',
-//                             cond: {
-//                                 $eq: [{ $indexOfArray: ['$$this.chapterTitle.title', req.params.title] }, chapterIndex]
-//                             }
-//                         }
-//                     }
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     keys: { $slice: ['$keys', keysIndex, 1] }
-//                 }
-//             }
-//         ];
-//         const questions = await Question.aggregate(pipeline);
-//         res.json(questions);
-//     } catch (error) {
-//         console.log(error.message);
-//         res.status(500).send('Server Error')
-//     }
-// });
+// helper function for route GET
 const getQuestion = async (title, keysIndex = 0, chapterIndex = 0) => {
     try {
         const query = { 'keys.chapterTitle.title': title };
         const projection = { keys: 1 };
         const questions = await Question.find(query, projection);
-        // console.log("questions", questions[0].keys[0].chapterTitle[0].title);
-        // console.log("title", title);
         const filteredKeys = questions[0].keys[0].chapterTitle.filter((key, index) => {
-            // console.log("key.chapterTitle[chapterIndex].title", key.chapterTitle[chapterIndex].title)
-            // return index === keysIndex && key.chapterTitle[chapterIndex].title === title;
             return key.title === title;
         });
         return filteredKeys;
@@ -76,13 +24,11 @@ const getQuestion = async (title, keysIndex = 0, chapterIndex = 0) => {
         throw new Error('Server Error');
     }
 };
-
+// route GET
 router.get('/:title', async (req, res) => {
     try {
         const keysIndex = Number(req.query.keysIndex) || 0;
         const chapterIndex = Number(req.query.chapterIndex) || 0;
-        console.log("keysIndex, chapterIndex", keysIndex, chapterIndex);
-        console.log('req.params.title', req.params.title);
         const questions = await getQuestion(req.params.title, keysIndex, chapterIndex);
         res.json(questions);
     } catch (error) {
@@ -90,7 +36,6 @@ router.get('/:title', async (req, res) => {
         res.status(500).send('Server Error')
     }
 });
-
 
 // route: POST 
 router.post('/', multerUpload.single('imageFile'),

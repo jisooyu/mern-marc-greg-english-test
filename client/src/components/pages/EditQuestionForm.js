@@ -2,6 +2,17 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Handle the click event for a chapter
+// function handleClick(id) {
+//     axios.put(`/api/question/edit/:${id}`)
+//         .then(response => {
+//             console.log(response.data);
+//         })
+//         .catch(error => {
+//             console.log(error);
+//         });
+// }
+
 const EditQuestionForm = () => {
 
     const [imageFile, setImageFile] = useState('');

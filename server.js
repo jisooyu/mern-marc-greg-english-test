@@ -16,7 +16,6 @@ app.use('/api/students', require('./routes/students'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/question', require('./routes/question'));
 app.use('/api/firstCreateQuestion', require('./routes/firstCreateQuestion'));
-app.use('/api/addSubDocument', require('./routes/addSubDocument'));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

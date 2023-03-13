@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
+import FetchData from './components/pages/FetchData';
 import Display from './components/pages/Display';
 import QuestionForm from './components/pages/QuestionForm';
 import EditQuestionForm from './components/pages/EditQuestionForm';
@@ -30,6 +31,7 @@ const App = () => {
                 <Route path='login' element={<Login />} />
                 <Route path='question' element={<QuestionForm />} />
                 <Route path='question/edit' element={<EditQuestionForm />} />
+                <Route path='fetchData' element={<FetchData />} />
                 <Route path='display' element={<Display />} />
               </Routes>
             </div>
