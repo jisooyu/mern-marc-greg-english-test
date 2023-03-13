@@ -1,38 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Display from './Display'
+import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
 
-const FetchData = () => {
+const FetchForm = () => {
     const [keysIndex, setKeysIndex] = useState(0);
     const [chapterIndex, setChapterIndex] = useState(0);
     const [chapterTitle, setChapterTitle] = useState('');
-    const [questions, setQuestions] = useState([]); // initialize questions state to null
-    const navigate = useNavigate();
+    const [questions, setQuestions] = useState(null); // initialize questions state to null
+    // const navigate = useNavigate();
 
-    useEffect(() => {
-        console.log('questions from useEffect', questions);
-    }, [questions]);
+    // async function fetchData() {
+    //     try {
+    //         const response = await axios.get(`/api/question/${chapterTitle}`, {
+    //             params: { keysIndex: keysIndex, chapterIndex: chapterIndex }
+    //         });
+    //         console.log("response", response);
+    //         return response;
 
-    const fetchData = async () => {
-        try {
-            const response = await axios.get(`/api/question/${chapterTitle}`, {
-                params: { keysIndex: keysIndex, chapterIndex: chapterIndex }
-            });
-            console.log("response.data", response.data);
-            await setQuestions(response.data);
-        } catch (error) {
-            console.log("Error broke out", error);
-        }
-    };
+    //     } catch (error) {
+    //         console.log("Error broke out: ", error);
+    //     }
+    // }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await fetchData();
-        console.log('questions from handleSubmit', questions);
+        // const response = await fetchData();
+        // console.log('response data:', response);
+        // setQuestions(response.data); // update questions state with response data
         // navigate('/display');
-        navigate('/display')
-        // return <Display questions={questions} />
     };
 
     return (
@@ -61,10 +55,8 @@ const FetchData = () => {
                 />
                 <button type='submit'>Edit Question</button>
             </form>
-            {/* {questions !== null && <Display questions={questions} />} */}
-            {questions ? <Display questions={questions} /> : <div>Loading...</div>}
         </div>
     );
 };
 
-export default FetchData;
+export default FetchForm;

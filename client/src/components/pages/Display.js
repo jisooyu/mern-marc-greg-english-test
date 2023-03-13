@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-
+import React from 'react';
+// import { useParams } from 'react-router-dom';
 const Display = ({ questions }) => {
-    // if (!questions) return null;
-    console.log('questions prop:', questions);
-
-    // if (!questions) {
-    //     return <div>Loading...</div>;
-    // }
+    if (!Array.isArray(questions)) {
+        return <div>Loading...</div>;
+    }
     return (
         <div>
-            <h1>Questions </h1>
             {questions.map((question) => (
-                < div key={question._id} >
+                <div key={question._id}>
                     <h3>{question.title}</h3>
                     <ul>
                         {question.quizzes.map((quiz) => (
@@ -22,9 +18,8 @@ const Display = ({ questions }) => {
                         ))}
                     </ul>
                 </div>
-            ))
-            }
-        </div >
+            ))}
+        </div>
     );
 };
 
