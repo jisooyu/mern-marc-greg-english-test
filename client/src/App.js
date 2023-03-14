@@ -13,32 +13,35 @@ import Alerts from './components/layout/Alerts';
 import PrivateRoute from './components/routing/PrivateRoute';
 import AuthState from './context/auth/AuthState';
 import AlertState from './context/alert/AlertState';
+import { QuestionsProvider } from './components/context/QuestionContext';
 import './App.css';
 
 const App = () => {
   return (
-    <AuthState>
-      <AlertState>
-        <BrowserRouter>
-          <Fragment>
-            <Navbar />
-            <div className='container'>
-              <Alerts />
-              <Routes>
-                <Route path='/' element={<PrivateRoute component={Home} />} />
-                <Route path='about' element={<About />} />
-                <Route path='register' element={<Register />} />
-                <Route path='login' element={<Login />} />
-                <Route path='question' element={<QuestionForm />} />
-                <Route path='question/edit' element={<EditQuestionForm />} />
-                <Route path='fetchData' element={<FetchData />} />
-                <Route path='display' element={<Display />} />
-              </Routes>
-            </div>
-          </Fragment>
-        </BrowserRouter>
-      </AlertState>
-    </AuthState>
+    <QuestionsProvider>
+      <AuthState>
+        <AlertState>
+          <BrowserRouter>
+            <Fragment>
+              <Navbar />
+              <div className='container'>
+                <Alerts />
+                <Routes>
+                  <Route path='/' element={<PrivateRoute component={Home} />} />
+                  <Route path='about' element={<About />} />
+                  <Route path='register' element={<Register />} />
+                  <Route path='login' element={<Login />} />
+                  <Route path='question' element={<QuestionForm />} />
+                  <Route path='question/edit' element={<EditQuestionForm />} />
+                  <Route path='fetchData' element={<FetchData />} />
+                  <Route path='display' element={<Display />} />
+                </Routes>
+              </div>
+            </Fragment>
+          </BrowserRouter>
+        </AlertState>
+      </AuthState>
+    </QuestionsProvider>
   );
 };
 

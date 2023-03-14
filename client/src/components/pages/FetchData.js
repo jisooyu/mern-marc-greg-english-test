@@ -1,38 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Display from './Display'
+import Display from './Display';
+import { QuestionContext } from '../context/QuestionContext';
 
 const FetchData = () => {
+    const { questions, setQuestions } = useContext(QuestionContext);
     const [keysIndex, setKeysIndex] = useState(0);
     const [chapterIndex, setChapterIndex] = useState(0);
     const [chapterTitle, setChapterTitle] = useState('');
-    const [questions, setQuestions] = useState([]); // initialize questions state to null
+    const location = useLocation();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        console.log('questions from useEffect', questions);
-    }, [questions]);
 
     const fetchData = async () => {
         try {
             const response = await axios.get(`/api/question/${chapterTitle}`, {
-                params: { keysIndex: keysIndex, chapterIndex: chapterIndex }
+                params: { keysIndex: keysIndex, chapterIndex: chapterIndex },
             });
-            console.log("response.data", response.data);
-            await setQuestions(response.data);
+            console.log('response.data', response.data);
+            setQuestions(response.data);
         } catch (error) {
-            console.log("Error broke out", error);
+            console.log('Error broke out', error);
         }
     };
+
+    useEffect(() => {
+        console.log("questions from useEffect", questions);
+    }, [questions, location.pathname]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         await fetchData();
-        console.log('questions from handleSubmit', questions);
-        // navigate('/display');
-        navigate('/display')
-        // return <Display questions={questions} />
+        navigate('/display');
     };
 
     return (
@@ -61,8 +60,7 @@ const FetchData = () => {
                 />
                 <button type='submit'>Edit Question</button>
             </form>
-            {/* {questions !== null && <Display questions={questions} />} */}
-            {questions ? <Display questions={questions} /> : <div>Loading...</div>}
+            {location.pathname === '/display' && <Display />}
         </div>
     );
 };
